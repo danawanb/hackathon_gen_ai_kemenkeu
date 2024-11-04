@@ -31,14 +31,16 @@
 			<h1
 				class="text-white text-5xl font-extrabold max-w-2xl"
 			>
-			Enhanced your knowledge about Government Treasury ✨
+				Enhanced your knowledge about Government
+				Treasury ✨
 			</h1>
 			<h1 class="text-white text-xl mt-4 max-w-2xl">
-				TreasuryAI let's you to understand about government treasury quickly and easily.
+				TreasuryAI let's you to understand about
+				government treasury quickly and easily.
 			</h1>
 			<div class="mt-4">
 				<a
-					href="http://localhost:8000/api/user/auth/google"
+					href="https://api.tinycode.cloud/api/user/auth/google"
 					><Button
 						color="alternative"
 						size="lg"
