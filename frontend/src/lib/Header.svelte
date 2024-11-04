@@ -64,7 +64,7 @@
 			>
 
 			<NavLi
-				href="/"
+				href="/chat"
 				class="text-gray-300 hover:underline hover:font-bold"
 				on:click={() => {
 					goto("/chat");

@@ -188,7 +188,7 @@ async def auth_google(code: str, db: db_dependency, res: Response):
         }
         token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
 
-        res.set_cookie(key="user_69", value=token, samesite="lax")
+        res.set_cookie(key="user_69", value=token, samesite="none", secure=False)
 
         # return "user sudah ada tetapi berhasil login"
         return RedirectResponse(str(URLX))
@@ -220,7 +220,8 @@ async def auth_google(code: str, db: db_dependency, res: Response):
 
         credentials = {"ids": ids, "roles": res_role}
         token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
-        res.set_cookie(key="user_69", value=token, samesite="lax")
+
+        res.set_cookie(key="user_69", value=token, samesite="none", secure=False)
 
         return RedirectResponse(str(URLX))
 
@@ -238,8 +239,7 @@ async def set_token(response: Response, db: db_dependency):
     credentials = {"ids": ids, "roles": res_role}
 
     token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
-    response.set_cookie(key="user_69", value=token, samesite="lax")
-
+    response.set_cookie(key="user_69", value=token, samesite="none", secure=False)
     return "berhasil dapat toten"
 
 
