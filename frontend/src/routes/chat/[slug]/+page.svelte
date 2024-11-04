@@ -333,7 +333,7 @@
     </div>
 
     <Modal
-        title="Bagaimana cara kerja busakAI"
+        title="Bagaimana cara kerja treasuryAI"
         bind:open={imageModal}
         size="lg"
         autoclose
@@ -346,14 +346,14 @@
     </Modal>
     <Modal title="Syarat dan Ketentuan" bind:open={defaultModal} autoclose>
         <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-            Fitur chat busakAI masih dalam tahap beta dan hanya tersedia untuk
-            informasi yang berkaitan dengan jabatan fungsional secara umum dan
-            tidak dapat dijadikan dasar hukum
+            Fitur chat treasuryAI masih dalam tahap pengembangan dan hanya
+            tersedia untuk informasi yang terbatas secara umum dan tidak dapat
+            dijadikan dasar hukum
         </p>
         <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
             Apabila terdapat jawaban yang salah harap kirimkan jawaban tersebut
             menggunakan fitur kirim yang ada pada bagian kanan tombol kanan chat
-            busakAI
+            treasuryAI
         </p>
         <svelte:fragment slot="footer">
             <Button

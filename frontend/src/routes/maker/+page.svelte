@@ -76,12 +76,20 @@
         <div class="mt-16 mb-8">
             <h2 class="text-4xl font-bold">Selamat Sore 💫🌇🌤</h2>
         </div>
-        <p class="max-w-3xl text-2xl font-semibold">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus
-            animi repellat quo eligendi nihil quas similique, dicta harum
-            impedit cupiditate eum cum nisi blanditiis. Cum provident maiores
-            consequuntur facilis numquam.
+        <p class="max-w-3xl text-xl font-semibold">
+            Secara sederhana alur dan peran dalam TreasuryAI terbaik menjadi dua
+            yakni maker dan user, maker memiliki peran untuk membuat knowledge
+            base dan melakukan evalusi atas pertanyaan dan jawaban yang telah
+            digenerate LLM sedangkan user dapat memiliki akses untuk bertanya
+            dan mengetahui detail peraturan serta dokumen-dokumen lain
+            berdasarkan pertanyaan yang telah diajukan
         </p>
+        <Button
+            class="mt-4"
+            on:click={() => {
+                goto("/chat");
+            }}>Mulai Chat</Button
+        >
     </div>
     <div class="space-y-4 mr-4">
         <Card
@@ -138,7 +146,7 @@
     </div>
 </div>
 <hr class="my-12 h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
-<div class="mt-8 max-w-2xl max-h-xl mx-12">
+<div class="mt-8 max-w-2xl max-h-xl mx-12 flex flex-row">
     {#if datax}
         <Bar data={datax} options={{ responsive: true }} />
         <Bar data={datax} options={{ responsive: true }} />

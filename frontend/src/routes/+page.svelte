@@ -41,8 +41,8 @@
 	<div class="flex flex-row mt-8">
 		<div class="ml-24">
 			<video
-				src="https://www.typeform.com/static/homepage/hero/hero.webm"
-				class="mx-auto xl:max-w-xl"
+				src="https://baru.jafung-perbendaharaan.info/_app/immutable/assets/Busak%20AI%20Video.62e571e5.mp4"
+				class="mx-auto xl:max-w-xl mt-24"
 				muted
 				autoplay
 				loop
@@ -121,9 +121,8 @@
 			<Blockquote
 				size="xl"
 				class="max-w-4xl mt-4 justify-center text-center mx-auto text-blue-900"
-				>"With a focus on simplicity and speed, it's
-				perfect for anyone needing fast, hassle-free
-				form creation"</Blockquote
+				>"With a focus on simplicity and Comprehensive
+				Knowledge Creation for Language Learning Model"</Blockquote
 			>
 		</div>
 		<div class=" bg-white dark:bg-gray-700">
@@ -131,82 +130,6 @@
 		</div>
 		<div
 			class="bg-white dark:bg-gray-700 flex flex-row mx-auto gap-2 items-center justify-center mb-12"
-		>
-			{#each daftar as daf}
-				<Card padding="lg" class="mx-4">
-					<h5
-						class="mb-4 text-xl font-medium text-gray-500 dark:text-gray-400"
-					>
-						{daf}
-					</h5>
-					<div
-						class="flex items-baseline text-gray-900 dark:text-white"
-					>
-						<span
-							class="text-3xl font-extrabold tracking-tight"
-							>Free</span
-						>
-						<span
-							class="ms-1 text-xl font-normal text-gray-500 dark:text-gray-400"
-							>/month</span
-						>
-					</div>
-					<!-- List -->
-					<ul class="my-7 space-y-4">
-						<li
-							class="flex space-x-2 rtl:space-x-reverse"
-						>
-							<CheckCircleSolid
-								class="w-4 h-4 text-primary-600 dark:text-primary-500"
-							/>
-							<span
-								class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400"
-							>
-								20 Form per
-								bulan
-							</span>
-						</li>
-						<li
-							class="flex space-x-2 rtl:space-x-reverse"
-						>
-							<CheckCircleSolid
-								class="w-4 h-4 text-primary-600 dark:text-primary-500"
-							/>
-							<span
-								class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400"
-							>
-								Jumlah isian
-								tidak terbatas
-							</span>
-						</li>
-						<li
-							class="flex space-x-2 rtl:space-x-reverse"
-						>
-							<CheckCircleSolid
-								class="w-4 h-4 text-primary-600 dark:text-primary-500"
-							/>
-							<span
-								class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400"
-							>
-								Link
-							</span>
-						</li>
-						<li
-							class="flex space-x-2 rtl:space-x-reverse"
-						>
-							<CheckCircleSolid
-								class="w-4 h-4 text-primary-600 dark:text-primary-500"
-							/>
-							<span
-								class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400"
-							>
-								Custom URL By
-								Default
-							</span>
-						</li>
-					</ul>
-				</Card>
-			{/each}
-		</div>
+		></div>
 	</div>
 </div>
