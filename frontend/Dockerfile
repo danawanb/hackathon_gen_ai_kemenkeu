@@ -11,6 +11,6 @@ COPY --from=build /app/build .
 COPY --from=build /app/package.json .
 COPY --from=build /app/package-lock.json .
 RUN npm ci --omit=dev
-ENV API_BASE_URL="http://localhost:8000"
+ENV API_BASE_URL="https://api.tinycode.cloud"
 EXPOSE 3000
 CMD ["node", "."]
