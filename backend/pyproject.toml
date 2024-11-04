@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "fastapi-app"
+version = "0.1.0"
+description = ""
+authors = ["Donatas Rasiukevicius <donatas@fly.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.0"
+langchain-postgres = "^0.0.12"
+langchain-openai = "^0.2.2"
+langchain-community = "^0.3.1"
+pypdf = "^5.0.1"
+psycopg = "^3.2.3"
+python-pptx = "^1.0.2"
+python-magic = "^0.4.27"
+sqlalchemy = "^2.0.35"
+psycopg2 = "^2.9.9"
+docx2txt = "^0.8"
+python-jose = "^3.3.0"
+python-dotenv = "^1.0.1"
+httpx = "^0.27.2"
+minio = "^7.2.9"
+redis = "^5.1.1"
+fastapi-utilities = "^0.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

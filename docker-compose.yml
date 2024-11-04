@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  fastapi:
+    depends_on:
+      - redis
+    build: ./backend
+    container_name: fastapi
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${FASTAPI_LOCAL_PORT}:${FASTAPI_DOCKER_PORT}"
+    environment:
+      - GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - GOOGLE_SECRET_ID=$GOOGLE_SECRET_ID
+      - GOOGLE_REDIRECT_URI=$GOOGLE_REDIRECT_URI
+      - REDIRECT_URI=$REDIRECT_URI
+      - OPEN_API_KEY=$OPEN_API_KEY
+      - PG_URL=$PG_URL
+      - MINIO_URL=$MINIO_URL
+      - MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY=$MINIO_SECRET_KEY
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PASSWORD=$REDIS_PASSWORD
+    networks:
+      - backend
+      - frontend
+  svelte:
+    container_name: svelte
+    depends_on:
+      - fastapi
+    build:
+      context: ./frontend
+      args:
+        - CLIENT_API_BASE_URL=${CLIENT_API_BASE_URL}
+    ports:
+      - "${SVELTE_LOCAL_PORT}:${SVELTE_DOCKER_PORT}"
+    networks:
+      - frontend
+  redis:
+    image: redis:alpine
+    restart: always
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/var/lib/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "$$REDIS_PASSWORD"]
+    networks:
+      - backend
+volumes:
+  redis:
+
+networks:
+  backend:
+    external: true
+  frontend:
