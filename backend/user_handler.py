@@ -255,7 +255,7 @@ async def set_token(response: Response, db: db_dependency):
         key="user_69",
         value=token,
         samesite="none",
-        secure=False,
+        secure=True,
     )
 
     return token

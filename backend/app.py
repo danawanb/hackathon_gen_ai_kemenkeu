@@ -58,9 +58,6 @@ vector_store = PGVector(
 )
 
 app = FastAPI(docs_url=None)
-app.include_router(user_handler.router)
-app.include_router(maker_handler.router)
-app.include_router(chat_handler.router)
 
 origins = [
     "http://localhost:5173",
@@ -75,6 +72,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(user_handler.router)
+app.include_router(maker_handler.router)
+app.include_router(chat_handler.router)
 
 
 # deprecated perlu diupdate

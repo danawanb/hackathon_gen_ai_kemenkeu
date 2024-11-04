@@ -24,7 +24,6 @@
 				loading = false;
 				Cookies.set("user_69", response.data, {
 					expires: 1,
-					domain: "api.tinycode.cloud",
 				});
 				goto("/maker");
 			})
