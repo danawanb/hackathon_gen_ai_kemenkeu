@@ -251,8 +251,14 @@ async def set_token(response: Response, db: db_dependency):
     credentials = {"ids": ids, "roles": res_role}
 
     token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
-    response.set_cookie(key="user_69", value=token, samesite="none", secure=False)
-    return "berhasil dapat toten"
+    response.set_cookie(
+        key="user_69",
+        value=token,
+        samesite="none",
+        secure=False,
+    )
+
+    return token
 
 
 @router.get("/api/user/get_token")

@@ -1,17 +1,40 @@
 <script lang="ts">
 	import { Alert, Blockquote, Card } from "flowbite-svelte";
 	import Header from "$lib/Header.svelte";
-	import { Button } from "flowbite-svelte";
+	import { Button, Spinner } from "flowbite-svelte";
 	import {
 		ArrowRightOutline,
 		CheckCircleSolid,
 	} from "flowbite-svelte-icons";
-
+	import axios from "axios";
+	export let data;
+	import { toast } from "svelte-french-toast";
 	let daftar = ["Gratis", "Premium"];
 	import { goto } from "$app/navigation";
+	import Cookies from "js-cookie";
 
-	let quotes = "danawan";
-	let ts_svelte = "tes svelte";
+	let loading = false;
+	let handle_demo = async () => {
+		loading = true;
+		await axios
+			.get(data.url + `/api/user/set_token`, {
+				withCredentials: true,
+			})
+			.then((response) => {
+				loading = false;
+				Cookies.set("user_69", response.data, {
+					expires: 1,
+				});
+
+				toast.success(`Berhasil login`);
+				goto("/maker");
+			})
+			.catch((err) => {
+				toast.error(err.response.data.detail);
+				loading = true;
+				console.log(err);
+			});
+	};
 </script>
 
 <div class="bg-blue-600 dark:bg-gray-800">
@@ -71,12 +94,27 @@
 						/></Button
 					></a
 				>
-				<Button color="blue" pill size="lg"
-					>Features</Button
-				>
+				{#if loading}
+					<Button color="yellow">
+						<Spinner
+							class="me-3"
+							size="4"
+							color="white"
+						/>Loading ...
+					</Button>
+				{:else}
+					<Button
+						color="yellow"
+						pill
+						size="lg"
+						on:click={handle_demo}
+					>
+						Demo
+					</Button>
+				{/if}
 			</div>
 			<p class="text-white text-xs mt-1 max-w-2xl italic">
-				If you already have an account, we'll log you in
+				Google Login currently in development
 			</p>
 		</div>
 	</div>
