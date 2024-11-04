@@ -65,6 +65,7 @@ app.include_router(chat_handler.router)
 origins = [
     "http://localhost:5173",
     CLIENT_URL,
+    "https://tinycode.cloud",
 ]
 
 app.add_middleware(
