@@ -26,8 +26,6 @@
 					expires: 1,
 					domain: "api.tinycode.cloud",
 				});
-
-				toast.success(`Berhasil login`);
 				goto("/maker");
 			})
 			.catch((err) => {
