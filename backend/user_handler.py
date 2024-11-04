@@ -188,7 +188,13 @@ async def auth_google(code: str, db: db_dependency, res: Response):
         }
         token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
 
-        res.set_cookie(key="user_69", value=token, samesite="none", secure=False)
+        res.set_cookie(
+            key="user_69",
+            value=token,
+            samesite="none",
+            domain="https://tinycode.cloud",
+            secure=False,
+        )
 
         # return "user sudah ada tetapi berhasil login"
         return RedirectResponse(str(URLX))
@@ -221,7 +227,13 @@ async def auth_google(code: str, db: db_dependency, res: Response):
         credentials = {"ids": ids, "roles": res_role}
         token = jwt.encode(credentials, JWT_SECRET, algorithm="HS256")
 
-        res.set_cookie(key="user_69", value=token, samesite="none", secure=False)
+        res.set_cookie(
+            key="user_69",
+            value=token,
+            samesite="none",
+            domain="https://tinycode.cloud",
+            secure=False,
+        )
 
         return RedirectResponse(str(URLX))
 
