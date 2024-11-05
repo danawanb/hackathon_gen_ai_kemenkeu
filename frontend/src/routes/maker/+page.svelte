@@ -137,7 +137,11 @@
                 jawaban yang telah digenerate otomatis berdasarkan konteks yang
                 ada
             </p>
-            <Button>
+            <Button
+                on:click={() => {
+                    goto("/eval");
+                }}
+            >
                 Evaluate Knowledge<ArrowRightOutline
                     class="w-6 h-6 ms-2 text-white"
                 />

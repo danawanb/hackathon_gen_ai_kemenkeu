@@ -16,6 +16,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from sqlalchemy.sql.operators import is_distinct_from
 from starlette.types import HTTPExceptionHandler
+import eval_handler
 from model import Faq, FaqInsert, KnowledgeList, KnowledgeHeader
 from sqlalchemy import DateTime, create_engine, exists, text
 from datetime import datetime
@@ -75,6 +76,7 @@ app.add_middleware(
 app.include_router(user_handler.router)
 app.include_router(maker_handler.router)
 app.include_router(chat_handler.router)
+app.include_router(eval_handler.router)
 
 
 # deprecated perlu diupdate

@@ -77,17 +77,8 @@
 				type="submit"
 				class="mr-4"
 				on:click={() => {
-					formModal = true;
-				}}>Daftar Email</Button
-			>
-			<Button
-				slot="right"
-				size="sm"
-				type="submit"
-				on:click={() => {
-					cariModal = true;
-				}}
-				color="yellow">Masukan Token</Button
+					goto("/chat/baru");
+				}}>Mulai</Button
 			>
 		</div>
 		<Modal
