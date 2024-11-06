@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import defaultload
 
 Base = declarative_base()
 
@@ -129,6 +130,7 @@ class KnowledgeEval(Base):
     ids_list = Column(JSONB)
     pertanyaan = Column(String)
     jawaban = Column(String)
+    status_eval = Column(Integer, default=0)
     feedback = Column(Integer)
     ids_user = Column(String)
     created_at = Column(DateTime, default=datetime.now)
@@ -140,6 +142,12 @@ class InsertKnowledgeEval(BaseModel):
     pertanyaan: str
     jawaban: str
     feedback: int
+
+
+class InsertDoEval(BaseModel):
+    ids_list: List[str]
+    page_content: str
+    ids_eval: str
 
 
 class InsertKnowledgeRecap(BaseModel):

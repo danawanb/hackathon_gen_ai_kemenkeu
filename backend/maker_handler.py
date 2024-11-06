@@ -1,4 +1,3 @@
-from importlib.metadata import metadata
 from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form, Cookie
 import uuid

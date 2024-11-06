@@ -8,20 +8,21 @@
 		Modal,
 		Textarea,
 		Spinner,
+		Label,
 	} from "flowbite-svelte";
 	import {
-		ArrowRightOutline,
-		FileLinesSolid,
 		AngleLeftOutline,
 		ChevronDownOutline,
 		ExclamationCircleOutline,
 		ThumbsDownSolid,
 		ThumbsUpSolid,
 	} from "flowbite-svelte-icons";
+	import { toast, Toaster } from "svelte-french-toast";
 	import { goto } from "$app/navigation";
 	import Header from "$lib/Header.svelte";
 	import { DataHandler, Datatable } from "@vincjo/datatables";
 	import axios from "axios";
+	import Select from "svelte-select";
 	import { onMount } from "svelte";
 	export let data;
 	let handler;
@@ -31,6 +32,9 @@
 	let rows;
 	let current_ids;
 	let delete_loading = false;
+	let current_pertanyaan = "";
+	let current_jawaban = "";
+	let current_ids_list;
 
 	onMount(async () => {
 		await get_data_eval();
@@ -49,7 +53,9 @@
 		try {
 			loading = true;
 			let res = await axios.get(
-				data.url + "/api/eval/get_eval",
+				data.url +
+					"/api/eval/get_eval?status=" +
+					pilihan_val.value,
 				{ withCredentials: true },
 			);
 			handler = new DataHandler(res.data, {
@@ -63,10 +69,43 @@
 		}
 	};
 	let handle_delete = async () => {};
+
+	let pilihan = [
+		{ value: 0, label: "Belum" },
+		{ value: 1, label: "Sudah" },
+	];
+
+	let pilihan_val = { value: 0, label: "Belum" };
+
+	let insert_eval = async (ids_list, ids_eval, pertanyaan, jawaban) => {
+		try {
+			let page_content = "";
+			if (pertanyaan.includes("?")) {
+				page_content = pertanyaan + " " + jawaban;
+			} else {
+				page_content = pertanyaan + "? " + jawaban;
+			}
+			let datax = {
+				ids_list: ids_list,
+				page_content: page_content,
+				ids_eval: ids_eval,
+			};
+			await axios.post(
+				data.url + "/api/eval/insert_eval",
+				datax,
+				{ withCredentials: true },
+			);
+			toast.success("berhasil input evaluasi");
+		} catch (e) {
+			console.log(e);
+			toast.error(e.data.detail);
+		}
+	};
 </script>
 
 <Header />
 <div class="mx-12 mt-12">
+	<Toaster />
 	<Button
 		class="mr-2"
 		on:click={() => {
@@ -122,6 +161,16 @@
 </div>
 <div class="mt-24 mx-12">
 	<section id="section-1">
+		<div class="mb-4">
+			<Label for="title" class="block mb-2">Kategori</Label>
+			<Select
+				class="mt-2"
+				items={pilihan}
+				on:change={get_data_eval}
+				bind:value={pilihan_val}
+				placeholder="Pilih kategori"
+			/>
+		</div>
 		{#if handler}
 			<Datatable
 				{handler}
@@ -204,10 +253,16 @@
 									<Dropdown
 									>
 										<DropdownItem
-											on:click={() => {
+											on:click={async () => {
 												update_modal = true;
 												current_ids =
 													row.ids;
+												current_ids_list =
+													row.ids_list;
+												current_pertanyaan =
+													row.pertanyaan;
+												current_jawaban =
+													row.jawaban;
 											}}
 											>Evaluasi</DropdownItem
 										>
@@ -268,13 +323,21 @@
 						>
 							<Textarea
 								class="h-96"
-								bind:value={current_update_text}
+								bind:value={current_jawaban}
 							></Textarea>
 
 							<svelte:fragment
 								slot="footer"
 							>
 								<Button
+									on:click={async () => {
+										await insert_eval(
+											current_ids_list,
+											current_ids,
+											current_pertanyaan,
+											current_jawaban,
+										);
+									}}
 									>Simpan</Button
 								>
 								<Button
