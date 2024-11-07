@@ -440,8 +440,13 @@
                 return;
             }
 
-            delete_all_loading = true;
+            await axios.post(
+                data.url + "/api/maker/delete_header/" + slugx,
+                {},
+                { withCredentials: true },
+            );
 
+            delete_all_loading = true;
             toast.success("berhasil hapus");
             delete_all_loading = false;
             hapus_knowledge_modal = false;

@@ -30,11 +30,9 @@
         ThumbsUpSolid,
         BookSolid,
         ArrowRightOutline,
+        ChevronRightOutline,
     } from "flowbite-svelte-icons";
 
-    // const names = Object.keys(easingFns).filter(
-    // 		n => !['default', '__moduleExports'].includes(n),
-    // )
     export let data;
     import axios from "axios";
     let urlServer = data.url;
@@ -139,6 +137,7 @@
                     toggled: true,
                     docs: res.files,
                     ids_list: res.ids_list,
+                    aturan: res.detail,
                     image: "https://miro.medium.com/v2/resize:fit:1024/1*pZcSPPuXUpUrzq05OVJuHA.jpeg",
                 };
                 pertanyaan = [...pertanyaan, mes2];
@@ -233,6 +232,7 @@
     let imageModal = false;
 
     let pertanyaan_default = [
+        "Apa itu IKPA (Indikator Kinerja Pelaksanaan Anggaran) ?",
         "Seperti apa prinsip belanja satuan kerja yang berkualitas ?",
         "Apa syarat penunjukan Pejabat Pembuat Komitmen ?",
         "Apa saja tugas Pejabat Pembuat Komitmen ?",
@@ -440,37 +440,53 @@
                             {per.message}
                         {/if}
                     </p>
-                    {#if per.docs.length > 0}
-                        <div class="mt-2">
-                            <Button size="xs"
-                                ><BookSolid class="w-4 h-4 me-2" />Dokumen
-                                sumber</Button
-                            >
-                            <Dropdown class="w-60 p-3 space-y-1 text-sm">
-                                <DropdownItem
-                                    class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    <div class="flex flex-row">
+                        {#if per.docs.length > 0}
+                            <div class="mt-2 mr-4">
+                                <Button size="xs"
+                                    ><BookSolid class="w-4 h-4 me-2" />Dokumen
+                                    sumber</Button
                                 >
-                                    Peraturan
-                                </DropdownItem>
-                                <li
-                                    class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                >
-                                    <Helper class="ps-6"
-                                        >Some helpful instruction goes over
-                                        here.</Helper
+                                <Dropdown class="w-60 p-3 space-y-1 text-sm">
+                                    <DropdownItem
+                                        class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
                                     >
-                                </li>
-                                <li
-                                    class="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        Peraturan
+                                    </DropdownItem>
+                                </Dropdown>
+                            </div>
+                        {/if}
+                        {#if per.aturan}
+                            <div class="mt-2">
+                                <Button size="xs"
+                                    ><BookSolid class="w-4 h-4 me-2" />Sumber
+                                    Aturan</Button
                                 >
-                                    <Helper class="ps-6"
-                                        >Some helpful instruction goes over
-                                        here.</Helper
-                                    >
-                                </li>
-                            </Dropdown>
-                        </div>
-                    {/if}
+                                <Dropdown class="w-60 p-3 space-y-1 text-sm">
+                                    {#each per.aturan as atur}
+                                        <DropdownItem
+                                            class="flex items-center justify-between rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        >
+                                            {atur.aturan.pasal} - {atur.nomor}
+                                            <ChevronRightOutline
+                                                class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
+                                            />
+                                        </DropdownItem>
+                                        <Dropdown
+                                            placement="right-start"
+                                            class="max-w-full w-full relative"
+                                        >
+                                            <div class="max-w-full">
+                                                <p class="text-sm max-w-full">
+                                                    {atur.page_content}
+                                                </p>
+                                            </div>
+                                        </Dropdown>
+                                    {/each}
+                                </Dropdown>
+                            </div>
+                        {/if}
+                    </div>
                 </div>
             </div>
         {:else}

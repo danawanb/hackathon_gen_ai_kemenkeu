@@ -5,6 +5,7 @@ from fastapi.security import api_key
 from langchain_community.document_loaders import (
     PyPDFLoader,
     UnstructuredPowerPointLoader,
+    python,
 )
 from langchain_postgres.vectorstores import Base
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -203,15 +204,21 @@ async def make_questx(item: Answer):
 
 
 @router.put("/api/maker/update_knowledge_list/{ids_header}/{ids}")
-async def update_faq(db: db_dependency, item: KnowledgeListUpdate,ids_header: str, ids: str):
+async def update_faq(
+    db: db_dependency, item: KnowledgeListUpdate, ids_header: str, ids: str
+):
     if ids:
         try:
-            exist = db.query(KnowledgeList).filter(KnowledgeList.ids == ids, KnowledgeList.ids_header == ids_header).first()
+            exist = (
+                db.query(KnowledgeList)
+                .filter(
+                    KnowledgeList.ids == ids, KnowledgeList.ids_header == ids_header
+                )
+                .first()
+            )
 
             if exist is None:
-                raise HTTPException(
-                    status_code=400, detail="Id knowledge tidak sesuai"
-                )
+                raise HTTPException(status_code=400, detail="Id knowledge tidak sesuai")
             else:
                 for val, value in vars(item).items():
                     setattr(exist, val, value)
@@ -236,7 +243,10 @@ async def test_redis(idx: str):
         raise HTTPException(status_code=500, detail=str(err))
 
 
-@router.post("/api/maker/delete_knowledge/{ids}/{ids_header}", dependencies=[Depends(verify_admin)])
+@router.post(
+    "/api/maker/delete_knowledge/{ids}/{ids_header}",
+    dependencies=[Depends(verify_admin)],
+)
 async def delete_knowledge(ids: str, ids_header: str, db: db_dependency):
     if ids and ids_header:
         try:
@@ -253,7 +263,7 @@ async def delete_knowledge(ids: str, ids_header: str, db: db_dependency):
             else:
                 exists.deleted_at = datetime.now()  # type: ignore
                 vector_store.delete(ids=[ids])
-                
+
                 db.commit()
                 return "Berhasil hapus knowledge"
         except Exception as err:
@@ -934,21 +944,11 @@ async def store_pdf_id_cat_2(
         res = r.get(idx)
 
         python_list = json.loads(res)  # type: ignore
+        print(python_list)
 
         docs_insert = []
         for spl in python_list:
-            idy = spl["id"]
-            ids_regulation = spl["ids_regulation"]
-
-            item.metadata.update(spl["metadata"])
-            item.metadata.update(
-                {
-                    "id": spl["id"],
-                    "file_name": filename,
-                    "category_id": "2",
-                    "ids_regulation": ids_regulation,
-                }
-            )
+            idy = spl["id"]         
 
             single_docs = Document(
                 id=idy,
@@ -956,8 +956,11 @@ async def store_pdf_id_cat_2(
                 metadata={
                     "id": spl["id"],
                     "metadata": item.metadata,
+                    "metadata_aturan": spl["metadata"],
                     "ids_header": ids_header,
                     "file_name": filename,
+                    "ids_regulation": spl["ids_regulation"],
+                    "category_id": 2,
                 },
             )
             # print(single_docs)
@@ -980,6 +983,199 @@ async def store_pdf_id_cat_2(
             db.commit()
 
         return "berhasil input"
+    except Exception as err:
+        print(err)
+        raise HTTPException(status_code=500, detail=str(err))
+
+
+@router.post("/api/maker/test_store_pdf/{id_cat}")
+async def store_pdf(
+    db: db_dependency,
+    file: UploadFile,
+    id_cat: int,
+):
+    try:
+
+        filenamex = str(uuid.uuid4()) + ".pdf"
+
+        file_path = f"/tmp/{filenamex}"
+
+        with open(file_path, "wb") as f:
+            f.write(file.file.read())
+
+        loader = PyPDFLoader(file_path)
+
+        # upload ke bucket
+        bucket_name = "hackathon"
+        found = client_minio.bucket_exists(bucket_name)
+        if not found:
+            client_minio.make_bucket(bucket_name)
+            print("Created bucket", bucket_name)
+        else:
+            print("Bucket", bucket_name, "already exists")
+
+        client_minio.fput_object(
+            bucket_name,
+            filenamex,
+            file_path,
+        )
+
+        # if os.path.exists(f"/tmp/{filenamex}"):
+        #    os.remove(f"/tmp/{filenamex}")
+        # else:
+        #    print("tdk bs hapus file")
+
+        docs = loader.load()
+
+        match id_cat:
+            case 1:
+                if len(docs) <= 5:
+                    return {"jmlh": len(docs), "page": docs, "file": filenamex}
+
+                else:
+                    text_splitter = RecursiveCharacterTextSplitter(
+                        chunk_size=1500, chunk_overlap=200
+                    )
+
+                    splits = text_splitter.split_documents(docs)
+
+                    docs_insert = []
+
+                    for spl in splits:
+                        single_docs = spl.page_content
+                        docs_insert.append(single_docs)
+
+                    idx = str(uuid.uuid4())
+
+                    r = redis.Redis(host=REDIS_HOST, port=6379, db=0)
+                    r.set(idx, json.dumps(docs_insert))
+
+                    return {"jmlh": len(docs_insert), "idx": idx, "file": filenamex}
+            case 2:
+                str_docs = []
+
+                index_terakhir = 0
+
+                # cek ada lampiran tidak
+                for index, doc in enumerate(docs):
+                    if (
+                        "Ditetapkan di Jakarta" in doc.page_content
+                        or "Diundangkan di Jakarta" in doc.page_content
+                    ):
+                        print(f"ditemukan pada indeks {index}")
+                        index_terakhir = index
+                        break
+
+                for doc in docs:
+                    str_docs.append(doc.page_content)
+
+                str_docs = "".join(str_docs)
+
+                pattern = r"\b(?:https?://|www\.)\S+\.(com|id|co\.id|net|org|edu)\b"
+                text = re.sub(pattern, "", str_docs)
+
+                parsed_structure = []
+                current_bab = None
+                current_bagian = None
+                current_pasal = None
+                pending_bagian = None
+
+                for line in text.splitlines():
+                    line = line.strip()
+
+                    if line.startswith("BAB"):
+                        current_bab = {
+                            "bab": line,
+                            "bagian": [],
+                            "pasal": [],
+                        }
+
+                        parsed_structure.append(current_bab)
+                        current_bagian = None
+
+                    elif line.startswith("Bagian"):
+                        pending_bagian = line
+
+                    elif pending_bagian:
+                        current_bagian = {"bagian": line, "pasal": []}  # type:ignore
+                        current_bab["bagian"].append(current_bagian)  # type:ignore
+                        pending_bagian = None
+
+                    elif line.startswith("Bagian"):
+                        current_bagian = {"bagian": line, "pasal": []}  # type:ignore
+                        current_bab["bagian"].append(current_bagian)  # type:ignore
+
+                    # jika line dimulai dengan Pasal atau Pasa1 dan tidak ada ayatnya dan panjangya kurang dari 12 char
+                    elif (
+                        (line.startswith(("Pasal", "Pasa1")))
+                        and "ayat" not in line
+                        and len(line) <= 12
+                    ):
+                        current_pasal = {
+                            "pasal": line,
+                            "isi": "",
+                        }  # Struktur Pasal baru
+                        if current_bagian is None:
+                            current_bab["pasal"].append(current_pasal)  # type:ignore
+                        else:
+                            current_bagian["pasal"].append(current_pasal)
+                    elif current_pasal:
+                        current_pasal["isi"] += line + " "
+
+                flat_structure = transform_to_flat_format(parsed_structure)
+
+                converted_docu = [
+                    Document(
+                        id=str(uuid.uuid4()),
+                        page_content=entry["content"],
+                        metadata={
+                            "bab": entry["bab"],
+                            "bagian": entry["bagian"],
+                            "pasal": entry["pasal"],
+                        },
+                    )
+                    for entry in flat_structure
+                ]
+
+                # jika ada lampiran
+                if index_terakhir != 0:
+                    idx_terakhir = index_terakhir + 1
+
+                    for do in docs[idx_terakhir:]:
+                        single_doc = Document(
+                            id=str(uuid.uuid4()),
+                            page_content=re.sub(pattern, "", do.page_content),
+                            metadata={
+                                "bab": "Lampiran",
+                                "bagian": "Lampiran",
+                                "pasal": "Lampiran",
+                            },
+                        )
+                        converted_docu.append(single_doc)
+
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1500, chunk_overlap=200
+                )
+
+                splits = text_splitter.split_documents(converted_docu)
+
+                split_json = []
+
+                for spl in splits:
+                    single_split = {
+                        "id": str(uuid.uuid4()),
+                        "page_content": spl.page_content,
+                        "metadata": spl.metadata,
+                    }
+                    split_json.append(single_split)
+                
+                idx = str(uuid.uuid4())
+                r = redis.Redis(host=REDIS_HOST, port=6379, db=0)
+                r.set(idx, json.dumps(split_json))
+
+                return {"idx": idx, "file": filenamex}
+            case _:
+                raise HTTPException(status_code=500, detail="pilih kategori yg sesuai")
     except Exception as err:
         print(err)
         raise HTTPException(status_code=500, detail=str(err))

@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form, Cookie
 import uuid
@@ -192,9 +193,9 @@ async def answer(item: Answer, db: db_dependency):
         print("mulai " + str(datetime.now()))
         quest = str(item.question)
         results = vector_store.similarity_search(quest, k=5)
-        results2 = vector_store.similarity_search(quest, k=2)
-        print(results)
-        print("selesai similarity" + str(datetime.now()))
+        results2 = vector_store.similarity_search(quest, k=3)
+        # print(results)
+        # print("selesai similarity" + str(datetime.now()))
         resultsx = []
 
         ids_headers = []
@@ -209,6 +210,7 @@ async def answer(item: Answer, db: db_dependency):
             ids.append(single_idx)
 
         print("ambil file" + str(datetime.now()))
+
         files = (
             db.query(KnowledgeList.file)
             .filter(KnowledgeList.ids_header.in_(ids_headers))
@@ -217,28 +219,20 @@ async def answer(item: Answer, db: db_dependency):
         )
 
         result_str = []
-        for res in results2:
-            result_str.append(res.page_content)
+        for res in results:
 
-        result_join_str = " ".join(result_str)
-        pattern = r"Pasal\s*(\d+)(?:\s*\((\d+)\))?"
+            if isinstance(res.metadata["metadata"], str):
+                res.metadata["metadata"] = json.loads(res.metadata["metadata"])
 
-        matches = findall(pattern, result_join_str)
-
-        all_pasal = []
-
-        for match in matches:
-            pasal = match[0]  # Nomor pasal
-            ayat = match[1] if match[1] else 0  # Ayat, jika ada
-
-            pasalx: str
-            if ayat == 0:
-                pasalx = pasal
-                all_pasal.append(f"Pasal {pasalx}")
-            else:
-                all_pasal.append(f"Pasal {pasal} Ayat {ayat}")
-
-        unique_pasals = list(set(all_pasal))
+            if res.metadata.get("category_id", 0) == 2:
+                single_aturan = {
+                    "ids": res.id,
+                    "judul": res.metadata["metadata"].get("judul", ""),
+                    "nomor": res.metadata["metadata"].get("nomor", ""),
+                    "aturan": res.metadata.get("metadata_aturan", ""),
+                    "page_content": res.page_content,
+                }
+                result_str.append(single_aturan)
 
         headers_unique = list(set(ids_headers))
 
@@ -302,7 +296,7 @@ async def answer(item: Answer, db: db_dependency):
         return {
             "res": res,
             "files": string_list,
-            "pasals": unique_pasals,
+            "detail": result_str,
             "ids_list": ids,
         }
 

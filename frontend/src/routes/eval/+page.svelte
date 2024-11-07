@@ -79,6 +79,7 @@
 
 	let insert_eval = async (ids_list, ids_eval, pertanyaan, jawaban) => {
 		try {
+			loading_eval = true;
 			let page_content = "";
 			if (pertanyaan.includes("?")) {
 				page_content = pertanyaan + " " + jawaban;
@@ -90,17 +91,26 @@
 				page_content: page_content,
 				ids_eval: ids_eval,
 			};
+			console.log(datax);
 			await axios.post(
 				data.url + "/api/eval/insert_eval",
 				datax,
 				{ withCredentials: true },
 			);
+
 			toast.success("berhasil input evaluasi");
+			update_modal = false;
+			loading_eval = false;
+			await page.reload();
 		} catch (e) {
+			update_modal = true;
 			console.log(e);
-			toast.error(e.data.detail);
+			loading_eval = false;
+			toast.error(e.response.data.detail);
 		}
 	};
+
+	let loading_eval = false;
 </script>
 
 <Header />
@@ -273,7 +283,6 @@
 						<Modal
 							bind:open={delete_modal}
 							size="xs"
-							autoclose
 						>
 							<div
 								class="text-center"
@@ -329,17 +338,28 @@
 							<svelte:fragment
 								slot="footer"
 							>
-								<Button
-									on:click={async () => {
-										await insert_eval(
-											current_ids_list,
-											current_ids,
-											current_pertanyaan,
-											current_jawaban,
-										);
-									}}
-									>Simpan</Button
-								>
+								{#if loading_eval}
+									<Button>
+										<Spinner
+											class="me-3"
+											size="4"
+											color="white"
+										/>Loading
+										...
+									</Button>
+								{:else}
+									<Button
+										on:click={async () => {
+											await insert_eval(
+												current_ids_list,
+												current_ids,
+												current_pertanyaan,
+												current_jawaban,
+											);
+										}}
+										>Simpan</Button
+									>
+								{/if}
 								<Button
 									color="alternative"
 									on:click={() =>

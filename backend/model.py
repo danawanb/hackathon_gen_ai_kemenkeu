@@ -17,7 +17,7 @@ class Item(BaseModel):
 
 
 class Answer(BaseModel):
-    question: str = Field(min_length=10, max_length=500)
+    question: str = Field(min_length=10, max_length=800)
 
 
 class Faq(Base):

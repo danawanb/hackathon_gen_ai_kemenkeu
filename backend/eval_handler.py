@@ -84,14 +84,34 @@ async def get_eval(db: db_dependency, status: int | None = None):
 @router.post("/api/eval/insert_eval", dependencies=[Depends(verify_admin)])
 async def insert_eval(db: db_dependency, item: InsertDoEval):
     try:
+        teks = item.page_content.split("?")
+
+        if len(teks) != 2:
+            raise HTTPException(400, detail="page content salah")
+
+        res_eval = (
+            db.query(KnowledgeEval).filter(KnowledgeEval.ids == item.ids_eval).first()
+        )
+        if res_eval is None:
+            raise HTTPException(400, detail="tidak ada ids eval")
+
         res = (
-            db.query(KnowledgeList)
+            db.query(KnowledgeList.ids_header)
             .filter(KnowledgeList.ids.in_(item.ids_list))
             .group_by(KnowledgeList.ids_header)
             .all()
         )
 
+        if res is None:
+            raise HTTPException(400, detail="tidak ada ids listnya")
+
+        res_eval.status_eval = int(1)  # type: ignore
+        res_eval.jawaban = str(teks[1])  # type:  ignore
+
+        db.commit()
+
         for re in res:
+            re_ids_header = re[0]
 
             idx = str(uuid.uuid4())
 
@@ -101,8 +121,7 @@ async def insert_eval(db: db_dependency, item: InsertDoEval):
                 page_content=item.page_content,
                 metadata={
                     "id": idx,
-                    "ids_header": re.ids_header,
-                    "file_name": re.file,
+                    "ids_header": re_ids_header,
                     "category_id": 6,
                     "ids_eval": item.ids_eval,
                 },
@@ -112,8 +131,8 @@ async def insert_eval(db: db_dependency, item: InsertDoEval):
             content = KnowledgeList(
                 ids=idx,
                 ids_header=re.ids_header,
-                page_content="",
-                file=re.file,
+                page_content=item.page_content,
+                file="-",
                 category_id=6,
             )
 
